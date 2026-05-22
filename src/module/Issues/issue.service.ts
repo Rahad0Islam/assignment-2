@@ -1,3 +1,4 @@
+import { get } from "node:http";
 import { pool } from "../../db";
 import type { Issues } from "./issue.interface";
 
@@ -96,9 +97,28 @@ const finduserByid = async(id:number) =>{
      }
     
  }
+  const getIssueByidFromDb = async (id: number) =>{
+      try {
+         const result =await pool.query(`
+             SELECT * FROM issues WHERE id = $1
+        `,[id]);
+        
+        if(result.rows.length === 0){
+            throw new Error("issue not found");
+        }
+        const issue = result.rows[0];
+         
+        return issue;
+       
+      } catch (error) {
+         throw error
+      }
+ }
+
 export const issueService = {
     createIssueIntoDb,
     getAllIssueFromDb,
-    finduserByid
+    finduserByid,
+    getIssueByidFromDb
    
 }

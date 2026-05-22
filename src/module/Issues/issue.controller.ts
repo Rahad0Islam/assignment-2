@@ -46,8 +46,44 @@ const getAllIssues = async (req:Request , res: Response) =>{
          throw error
      }
 }
+const getIssueById = async (req:Request , res: Response) =>{
+     try {
+        const id= Number(req?.params?.id);
+        const issue  = await issueService.getIssueByidFromDb(id);
+
+         const user = await issueService.finduserByid(issue.reporter_id);
+        // console.log(issueData)
+        const result =  {
+                    id: issue.id,
+                    title: issue.title,
+                    description: issue.description,
+                    type: issue.type,
+                    status: issue.status,
+
+                    reporter: {
+                        id: user.id,
+                        name: user.name,
+                        role: user.role
+                    },
+
+                    created_at: issue.created_at,
+                    updated_at: issue.updated_at
+                }
+
+
+          return apiResponse(res,{
+            statusCode:200,
+            success:true,
+            message:"issue fetched successfully",
+            data:result
+        });
+     } catch (error) {
+         throw error
+     }
+}
 
 export const issueController ={
     createIssue,
     getAllIssues,
+    getIssueById,
 }
