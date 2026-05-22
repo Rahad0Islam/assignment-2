@@ -82,8 +82,44 @@ const getIssueById = async (req:Request , res: Response) =>{
      }
 }
 
+const updateIssueByid = async (req:Request , res: Response) =>{
+    try {
+       
+        const IssueId = Number( req.params.id );
+        const id = req.user?.id;
+        const issue  = await issueService.getIssueByidFromDb(IssueId);
+        const userId = issue?.reporter_id;
+        const role = req.user?.role;
+        // console.log({role});
+        if((id === userId && issue.status === 'open')|| role === 'maintainer'){
+            const result = await issueService.updateIssueByidIntoDb(IssueId ,req.body);
+        
+           return apiResponse(res,{
+              statusCode:200,
+              success:true,
+              message:"Issue updated successfully",
+              data:result
+           });
+            
+        }
+        else{
+          return  apiResponse(res,{
+                statusCode:403,
+                success:false,
+                message:"not permission to update issue",
+                data:{}
+            })
+        }
+
+    } catch (error) {
+        throw error
+    }
+}
+
+
 export const issueController ={
     createIssue,
     getAllIssues,
     getIssueById,
+    updateIssueByid
 }

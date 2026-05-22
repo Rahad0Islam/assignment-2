@@ -114,11 +114,33 @@ const finduserByid = async(id:number) =>{
          throw error
       }
  }
+   const updateIssueByidIntoDb = async (id: number , payload :Issues) =>{
+        try {
+          
+        const {title,description,type} =payload;
+
+        const updateIssue = await pool.query(`
+            UPDATE issues SET 
+               title = COALESCE($1,title),
+               description = COALESCE($2,description),
+               type = COALESCE($3,type),
+               updated_at = NOW()
+            WHERE id = $4  RETURNING *
+        `,[title,description,type,id])
+
+        return updateIssue.rows[0];
+        
+        } catch (error) {
+            throw error;
+        }
+  }
+
 
 export const issueService = {
     createIssueIntoDb,
     getAllIssueFromDb,
     finduserByid,
-    getIssueByidFromDb
+    getIssueByidFromDb,
+    updateIssueByidIntoDb,
    
 }
