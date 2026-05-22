@@ -20,7 +20,34 @@ const createIssue = async (req:Request , res : Response) => {
         throw new Error("issue Created error");
     }
 }
+const getAllIssues = async (req:Request , res: Response) =>{
+     try {
+        const sort = typeof req.query.sort === "string" ? req.query.sort : "newest";
+        const type = typeof req.query.type === "string" ? req.query.type : undefined;
+        const status = typeof req.query.status === "string" ? req.query.status : undefined;
+
+
+        const result  = await issueService.getAllIssueFromDb(sort,type,status);
+        if(result.length === 0 ){
+          return  apiResponse(res,{
+                statusCode:404,
+                success:false,
+                message:"issue not found",
+                error:"issue not found with specific query "
+            } )
+        }
+          return apiResponse(res,{
+            statusCode:200,
+            success:true,
+            message:"all issues fetched successfully",
+            data:result
+        });
+     } catch (error) {
+         throw error
+     }
+}
 
 export const issueController ={
     createIssue,
+    getAllIssues,
 }
