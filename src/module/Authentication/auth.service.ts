@@ -17,8 +17,9 @@ const signupIntoDb = async (payload : Iuser) =>{
       
       delete result.rows[0].password;
       return result?.rows[0];
-    } catch (error:any) {
-        throw new Error(error.message)
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "User signup failed";
+        throw new Error(message)
     }
 }
 

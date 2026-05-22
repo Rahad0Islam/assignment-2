@@ -16,8 +16,8 @@ const Authentication = (...roles : Troles[]) =>{
            return apiResponse(res,{
                 statusCode:401,
                 success:false,
-                message:" authorization!! ",
-                data:"token does not valid"
+                message:"authorization required",
+                errors:"token is missing"
             })
         }
 
@@ -30,10 +30,10 @@ const Authentication = (...roles : Troles[]) =>{
         
         if(userData.rows.length === 0){
            return apiResponse(res,{
-                statusCode:404,
+                statusCode:401,
                 success:false,
-                message:"user not found",
-                data:"token does not valid"
+                message:"unauthorized",
+                errors:"token is invalid"
             })
         }
         const user = userData.rows[0];
@@ -45,15 +45,20 @@ const Authentication = (...roles : Troles[]) =>{
             return apiResponse(res,{
                 statusCode:403,
                 success:false,
-                message:"forbidden can not created issue",
-                data:"roles are not valid"
+                message:"forbidden",
+                errors:"insufficient role"
             })
         }
         req.user = decode;
         next();
 
-     } catch (error) {
-         next(error);
+     } catch (error: unknown) {
+         return apiResponse(res,{
+            statusCode:401,
+            success:false,
+            message:"unauthorized",
+            errors: error instanceof Error ? error.message : "invalid token"
+         })
      }
 
     }

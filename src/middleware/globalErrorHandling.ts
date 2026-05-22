@@ -1,12 +1,19 @@
 import type { NextFunction, Request, Response } from "express";
 
-export const globalErrorHandler = (err:any, req: Request, res:Response, next:NextFunction) => {
-    // console.error(err.stack);
+type AppError = Error & {
+    statusCode?: number;
+    errors?: unknown;
+};
 
+export const globalErrorHandler = (err: unknown, req: Request, res:Response, next:NextFunction) => {
+    const error = err as AppError;
+    const statusCode = typeof error?.statusCode === "number" ? error.statusCode : 500;
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+    const errors = error?.errors;
 
-    const statusCode = err.statusCode || 500;
     res.status(statusCode).json({
         success: false,
-        message: err.message || 'Internal Server Error',
+        message,
+        errors
     });
 };

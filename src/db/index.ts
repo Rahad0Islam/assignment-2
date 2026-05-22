@@ -38,8 +38,12 @@ const  initDB = async () =>{
           )  
         `)
         console.log(`database connected successfully`)
-    } catch (error:any) {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log(error.message)
+      } else {
         console.log(error)
+      }
     }
 }
 

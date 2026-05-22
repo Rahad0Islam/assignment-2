@@ -2,6 +2,9 @@ import type { Request, Response } from "express";
 import { issueService } from "./issue.service";
 import apiResponse from "../../utility/apiResponse";
 
+const getErrorMessage = (error: unknown) => {
+    return error instanceof Error ? error.message : "Unexpected error";
+}
 
 const createIssue = async (req:Request , res : Response) => {
     try {
@@ -16,8 +19,13 @@ const createIssue = async (req:Request , res : Response) => {
             data:data
         });
 
-    } catch (error) {
-        throw new Error("issue Created error");
+    } catch (error: unknown) {
+        return apiResponse(res,{
+            statusCode:500,
+            success:false,
+            message:"issue created error",
+            errors:getErrorMessage(error)
+        })
     }
 }
 
@@ -29,22 +37,19 @@ const getAllIssues = async (req:Request , res: Response) =>{
 
 
         const result  = await issueService.getAllIssueFromDb(sort,type,status);
-        if(result.length === 0 ){
-          return  apiResponse(res,{
-                statusCode:404,
-                success:false,
-                message:"issue not found",
-                error:"issue not found with specific query "
-            } )
-        }
-          return apiResponse(res,{
+                return apiResponse(res,{
             statusCode:200,
             success:true,
             message:"all issues fetched successfully",
             data:result
         });
-     } catch (error) {
-         throw error
+         } catch (error: unknown) {
+                 return apiResponse(res,{
+                        statusCode:500,
+                        success:false,
+                        message:"issue fetch failed",
+                        errors:getErrorMessage(error)
+                 })
      }
 }
 
@@ -52,6 +57,14 @@ const getIssueById = async (req:Request , res: Response) =>{
      try {
         const id= Number(req?.params?.id);
         const issue  = await issueService.getIssueByidFromDb(id);
+        if(!issue){
+            return apiResponse(res,{
+                statusCode:404,
+                success:false,
+                message:"issue not found",
+                errors:"issue not found"
+            })
+        }
 
          const user = await issueService.finduserByid(issue.reporter_id);
         // console.log(issueData)
@@ -79,8 +92,13 @@ const getIssueById = async (req:Request , res: Response) =>{
             message:"issue fetched successfully",
             data:result
         });
-     } catch (error) {
-         throw error
+     } catch (error: unknown) {
+         return apiResponse(res,{
+            statusCode:500,
+            success:false,
+            message:"issue fetch failed",
+            errors:getErrorMessage(error)
+         })
      }
 }
 
@@ -90,10 +108,17 @@ const updateIssueByid = async (req:Request , res: Response) =>{
         const IssueId = Number( req.params.id );
         const id = req.user?.id;
         const issue  = await issueService.getIssueByidFromDb(IssueId);
-        const userId = issue?.reporter_id;
+        if(!issue){
+            return apiResponse(res,{
+                statusCode:404,
+                success:false,
+                message:"issue not found",
+                errors:"issue not found"
+            })
+        }
+        const userId = issue.reporter_id;
         const role = req.user?.role;
-        // console.log({role});
-        if((id === userId && issue.status === 'open')|| role === 'maintainer'){
+        if(role === 'maintainer'){
             const result = await issueService.updateIssueByidIntoDb(IssueId ,req.body);
         
            return apiResponse(res,{
@@ -104,17 +129,37 @@ const updateIssueByid = async (req:Request , res: Response) =>{
            });
             
         }
-        else{
-          return  apiResponse(res,{
+        if(id !== userId){
+            return apiResponse(res,{
                 statusCode:403,
                 success:false,
                 message:"not permission to update issue",
-                data:{}
+                errors:"forbidden"
             })
         }
+        if(issue.status !== 'open'){
+            return apiResponse(res,{
+                statusCode:409,
+                success:false,
+                message:"issue cannot be updated",
+                errors:"issue is not open"
+            })
+        }
+        const result = await issueService.updateIssueByidIntoDb(IssueId ,req.body);
+        return apiResponse(res,{
+            statusCode:200,
+            success:true,
+            message:"Issue updated successfully",
+            data:result
+        });
 
-    } catch (error) {
-        throw error
+    } catch (error: unknown) {
+        return apiResponse(res,{
+            statusCode:500,
+            success:false,
+            message:"issue update failed",
+            errors:getErrorMessage(error)
+        })
     }
 }
 
@@ -122,12 +167,13 @@ const deleteIssueById = async (req:Request , res: Response) =>{
     try {
         const IssueId = Number( req.params.id );
         const issue  = await issueService.getIssueByidFromDb(IssueId);
-        console.log(issue)
+        // console.log(issue)
         if(!issue){
            return apiResponse(res,{
                 statusCode:404,
                 success:false,
-                message:"issue not found "
+                message:"issue not found",
+                errors:"issue not found"
             })
         }
          await issueService.deleteIssueFromDb(Number(req.params?.id));
@@ -136,8 +182,13 @@ const deleteIssueById = async (req:Request , res: Response) =>{
             success:true,
             message:'Issue deleted successfully'
         })
-    } catch (error) {
-        throw error;
+    } catch (error: unknown) {
+        return apiResponse(res,{
+            statusCode:500,
+            success:false,
+            message:"issue delete failed",
+            errors:getErrorMessage(error)
+        })
     }
 }
 export const issueController = {

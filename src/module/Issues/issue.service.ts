@@ -13,7 +13,7 @@ const createIssueIntoDb = async (payload:Issues , reporter_id : number) =>{
         `,[title,description,type,reporter_id]);
 
         return result;
-    } catch (error:any) {
+    } catch (error: unknown) {
         throw error;
     }
 }
@@ -71,7 +71,7 @@ const getAllIssueFromDb = async (sort:string,type:string|undefined,status:string
       return allIssueWithuser;   
 
  
-     } catch (error) {
+     } catch (error: unknown) {
          throw error
      }
 }
@@ -91,7 +91,7 @@ const getAllIssueFromDb = async (sort:string,type:string|undefined,status:string
        }
        return result.rows[0];
    
-     } catch (error) {
+     } catch (error: unknown) {
          throw error
      }
     
@@ -103,15 +103,15 @@ const getAllIssueFromDb = async (sort:string,type:string|undefined,status:string
              SELECT * FROM issues WHERE id = $1
         `,[id]);
         
-        if(result.rows.length === 0){
-            throw new Error("issue not found");
-        }
-        const issue = result.rows[0];
+        // if(result.rows.length === 0){
+        //     throw new Error("issue not found");
+        // }
+        const issue = result?.rows[0];
          
         return issue;
        
-      } catch (error) {
-         throw error
+        } catch (error: unknown) {
+            throw error
       }
  }
 
@@ -132,7 +132,7 @@ const getAllIssueFromDb = async (sort:string,type:string|undefined,status:string
 
         return updateIssue.rows[0];
         
-        } catch (error) {
+        } catch (error: unknown) {
             throw error;
         }
   }
@@ -144,8 +144,8 @@ const getAllIssueFromDb = async (sort:string,type:string|undefined,status:string
         await pool.query(`
             DELETE FROM issues WHERE ID = $1
         `,[id]);
-       } catch (error) {
-         throw error
+             } catch (error: unknown) {
+                 throw error
        }
   }
 

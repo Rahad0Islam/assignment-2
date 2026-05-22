@@ -6,7 +6,7 @@ type Tresponse<T> = {
     success : boolean;
     message : string;
     data? : T ;
-    error? : unknown;
+    errors? : unknown;
     
 }
 const apiResponse = <T>(res:Response,data:Tresponse<T>) => {
@@ -15,7 +15,7 @@ const apiResponse = <T>(res:Response,data:Tresponse<T>) => {
         success : data.success,
         message : data.message,
         data : data.data,
-        errors : data.error
+        errors : data.errors
     })
 }
 
