@@ -20,6 +20,7 @@ const createIssue = async (req:Request , res : Response) => {
         throw new Error("issue Created error");
     }
 }
+
 const getAllIssues = async (req:Request , res: Response) =>{
      try {
         const sort = typeof req.query.sort === "string" ? req.query.sort : "newest";
@@ -46,6 +47,7 @@ const getAllIssues = async (req:Request , res: Response) =>{
          throw error
      }
 }
+
 const getIssueById = async (req:Request , res: Response) =>{
      try {
         const id= Number(req?.params?.id);
@@ -116,10 +118,32 @@ const updateIssueByid = async (req:Request , res: Response) =>{
     }
 }
 
-
-export const issueController ={
+const deleteIssueById = async (req:Request , res: Response) =>{
+    try {
+        const IssueId = Number( req.params.id );
+        const issue  = await issueService.getIssueByidFromDb(IssueId);
+        console.log(issue)
+        if(!issue){
+           return apiResponse(res,{
+                statusCode:404,
+                success:false,
+                message:"issue not found "
+            })
+        }
+         await issueService.deleteIssueFromDb(Number(req.params?.id));
+        return apiResponse(res,{
+            statusCode:200,
+            success:true,
+            message:'Issue deleted successfully'
+        })
+    } catch (error) {
+        throw error;
+    }
+}
+export const issueController = {
     createIssue,
     getAllIssues,
     getIssueById,
-    updateIssueByid
+    updateIssueByid,
+    deleteIssueById
 }

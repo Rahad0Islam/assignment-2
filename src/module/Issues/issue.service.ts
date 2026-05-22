@@ -1,4 +1,3 @@
-import { get } from "node:http";
 import { pool } from "../../db";
 import type { Issues } from "./issue.interface";
 
@@ -14,7 +13,7 @@ const createIssueIntoDb = async (payload:Issues , reporter_id : number) =>{
         `,[title,description,type,reporter_id]);
 
         return result;
-    } catch (error) {
+    } catch (error:any) {
         throw error;
     }
 }
@@ -77,7 +76,7 @@ const getAllIssueFromDb = async (sort:string,type:string|undefined,status:string
      }
 }
 
-const finduserByid = async(id:number) =>{
+ const finduserByid = async(id:number) =>{
      try {
          if(!id){
            throw new Error("id is not valid");
@@ -97,7 +96,8 @@ const finduserByid = async(id:number) =>{
      }
     
  }
-  const getIssueByidFromDb = async (id: number) =>{
+
+ const getIssueByidFromDb = async (id: number) =>{
       try {
          const result =await pool.query(`
              SELECT * FROM issues WHERE id = $1
@@ -114,7 +114,9 @@ const finduserByid = async(id:number) =>{
          throw error
       }
  }
-   const updateIssueByidIntoDb = async (id: number , payload :Issues) =>{
+
+
+  const updateIssueByidIntoDb = async (id: number , payload :Issues) =>{
         try {
           
         const {title,description,type} =payload;
@@ -136,11 +138,22 @@ const finduserByid = async(id:number) =>{
   }
 
 
+  const deleteIssueFromDb = async(id:number)=>{
+       try {
+        
+        await pool.query(`
+            DELETE FROM issues WHERE ID = $1
+        `,[id]);
+       } catch (error) {
+         throw error
+       }
+  }
+
 export const issueService = {
     createIssueIntoDb,
     getAllIssueFromDb,
-    finduserByid,
     getIssueByidFromDb,
     updateIssueByidIntoDb,
-   
+    finduserByid,
+    deleteIssueFromDb,
 }

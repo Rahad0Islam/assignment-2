@@ -1,8 +1,10 @@
 import app from "./app"
+import config from "./config/config"
 import { initDB } from "./db";
 
-const port = 3000;
+
+const port = config.port;
 app.listen(port, () => {
-  initDB()
+  initDB();
   console.log(`Server is running on http://localhost:${port}`)
 })
