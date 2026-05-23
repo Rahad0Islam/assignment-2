@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import apiResponse from "../utility/apiResponse";
-import jwt, { type JwtPayload } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import { pool } from "../db";
-import type { Troles } from "../type";
+import type { MyJwtPayload, Troles } from "../type";
 import config from "../config/config";
 
 const Authentication = (...roles : Troles[]) =>{
@@ -21,7 +21,7 @@ const Authentication = (...roles : Troles[]) =>{
             })
         }
 
-        const decode = jwt.verify(token as string, config.jwt_secret as string)as JwtPayload;
+        const decode = jwt.verify(token as string, config.jwt_secret as string)as MyJwtPayload;
     
 
         const userData= await pool.query(`
@@ -37,9 +37,7 @@ const Authentication = (...roles : Troles[]) =>{
             })
         }
         const user = userData.rows[0];
-        // console.log(user);
-
-        if(decode.name !== user.name  || decode.role !== user.name){
+        if(decode.name !== user.name  || decode.role !== user.role){
             return apiResponse(res,{
                 statusCode:401,
                 success:false,

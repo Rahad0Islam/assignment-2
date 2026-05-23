@@ -14,7 +14,7 @@ app.use('/api/auth',authRouter);
 app.use('/api/issues',issuesRouter);
 
 app.get('/', (req:Request, res:Response) => {
-  res.send('Hello World')
+  res.send('Backend - work perfectly')
 });
 
 app.use(globalErrorHandler)
