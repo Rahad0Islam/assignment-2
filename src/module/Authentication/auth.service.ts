@@ -2,7 +2,7 @@ import config from "../../config/config";
 import { pool } from "../../db";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import type { Iuser } from "./issue.interface";
+import type { Iuser } from "./auth.interface";
 
 const signupIntoDb = async (payload : Iuser) =>{
     try {
