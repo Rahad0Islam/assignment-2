@@ -54,7 +54,7 @@ const getAllIssues = async (req:Request , res: Response) =>{
             return apiResponse(res,{
             statusCode:200,
             success:true,
-            message:"all issues fetched successfully",
+            message:"Issues retrived successfully",
             data:allIssueWithuser
         });
          } catch (error: unknown) {
@@ -86,7 +86,7 @@ const getIssueById = async (req:Request , res: Response) =>{
           return apiResponse(res,{
             statusCode:200,
             success:true,
-            message:"issue fetched successfully",
+            message:"Issues retrived successfully",
             data:result
         });
      } catch (error: unknown) {
