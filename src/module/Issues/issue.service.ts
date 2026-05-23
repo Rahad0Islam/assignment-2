@@ -39,31 +39,35 @@ const getAllIssueFromDb = async (sort:string) =>{
 }
 
 const allIssueWithuser = async (allIssues:Issues[]) : Promise<IussueWithuser[]> =>{
-     let allIssueWithuser = await Promise.all(
-
-            allIssues.map(async(issue)=>{
-                const user = await finduserByid(issue.reporter_id as number);
-
-                return {
-                    id: issue.id as number,
-                    title: issue.title,
-                    description: issue.description,
-                    type: issue.type,
-                    status: issue.status,
-
-                    reporter: {
-                        id: user.id,
-                        name: user.name,
-                        role: user.role
-                    },
-
-                    created_at: issue.created_at,
-                    updated_at: issue.updated_at
-                }
-            })
-        )
-
-      return allIssueWithuser;
+    try {
+         let allIssueWithuser = await Promise.all(
+    
+                allIssues.map(async(issue)=>{
+                    const user = await finduserByid(issue.reporter_id as number);
+    
+                    return {
+                        id: issue.id as number,
+                        title: issue.title,
+                        description: issue.description,
+                        type: issue.type,
+                        status: issue.status,
+    
+                        reporter: {
+                            id: user.id,
+                            name: user.name,
+                            role: user.role
+                        },
+    
+                        created_at: issue.created_at,
+                        updated_at: issue.updated_at
+                    }
+                })
+            )
+    
+          return allIssueWithuser;
+    } catch (error) {
+        throw error;
+    }
 }
 
  const finduserByid = async(id:number) =>{

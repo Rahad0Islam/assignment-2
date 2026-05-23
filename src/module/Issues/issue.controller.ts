@@ -79,26 +79,9 @@ const getIssueById = async (req:Request , res: Response) =>{
                 errors:"issue not found"
             })
         }
-
-         const user = await issueService.finduserByid(issue.reporter_id);
-        // console.log(issueData)
-        const result =  {
-                    id: issue.id,
-                    title: issue.title,
-                    description: issue.description,
-                    type: issue.type,
-                    status: issue.status,
-
-                    reporter: {
-                        id: user.id,
-                        name: user.name,
-                        role: user.role
-                    },
-
-                    created_at: issue.created_at,
-                    updated_at: issue.updated_at
-                }
-
+        const allIssueWithuser  =await issueService.allIssueWithuser([issue]);
+     
+        const result = allIssueWithuser[0]!;
 
           return apiResponse(res,{
             statusCode:200,
