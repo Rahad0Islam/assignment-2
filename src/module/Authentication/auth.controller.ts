@@ -1,10 +1,8 @@
 import type { Request, Response } from "express";
 import { authService } from "./auth.service";
 import apiResponse from "../../utility/apiResponse";
+import { getErrorMessage } from "../../utility/getErrorMsg";
 
-const getErrorMessage = (error: unknown) => {
-    return error instanceof Error ? error.message : "Unexpected error";
-}
 
 const signup = async (req : Request , res : Response) =>{
      try {

@@ -33,21 +33,37 @@ const getAllIssues = async (req:Request , res: Response) =>{
         const type = typeof req.query.type === "string" ? req.query.type : undefined;
         const status = typeof req.query.status === "string" ? req.query.status : undefined;
 
+        const result  = await issueService.getAllIssueFromDb(sort);
+        let allIssueWithuser =await issueService.allIssueWithuser(result);
 
-        const result  = await issueService.getAllIssueFromDb(sort,type,status);
-                return apiResponse(res,{
+            if(type &&  (type==="bug" || type === "feature_request")){
+                    allIssueWithuser = allIssueWithuser.filter((issue)=>{
+                       return issue.type === type;
+                    })
+                }
+                
+        
+                if(status && (status === 'open' || status === 'in_progress' || status === 'resolved')){
+                    allIssueWithuser = allIssueWithuser.filter((issue)=>{
+                       return issue.status === status;
+                    })
+                }
+             
+        
+        
+            return apiResponse(res,{
             statusCode:200,
             success:true,
             message:"all issues fetched successfully",
-            data:result
+            data:allIssueWithuser
         });
          } catch (error: unknown) {
-                 return apiResponse(res,{
-                        statusCode:500,
-                        success:false,
-                        message:"issue fetch failed",
-                        errors:getErrorMessage(error)
-                 })
+            return apiResponse(res,{
+                statusCode:500,
+                success:false,
+                message:"issue fetch failed",
+                errors:getErrorMessage(error)
+            })
      }
 }
 

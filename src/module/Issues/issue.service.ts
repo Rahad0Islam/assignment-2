@@ -1,5 +1,5 @@
 import { pool } from "../../db";
-import type { Issues } from "./issue.interface";
+import type { Issues, IussueWithuser } from "./issue.interface";
 
 
 const createIssueIntoDb = async (payload:Issues , reporter_id : number) =>{
@@ -18,7 +18,7 @@ const createIssueIntoDb = async (payload:Issues , reporter_id : number) =>{
     }
 }
 
-const getAllIssueFromDb = async (sort:string,type:string|undefined,status:string|undefined) =>{ 
+const getAllIssueFromDb = async (sort:string) =>{ 
      try {
          
         let query = `ORDER BY created_at DESC`;
@@ -31,15 +31,21 @@ const getAllIssueFromDb = async (sort:string,type:string|undefined,status:string
       
         const allIssues = issuesData.rows;
         
-       
+    
+      return allIssues;
+    }catch(error){
+        throw error;
+    }
+}
 
-        let allIssueWithuser = await Promise.all(
+const allIssueWithuser = async (allIssues:Issues[]) : Promise<IussueWithuser[]> =>{
+     let allIssueWithuser = await Promise.all(
 
             allIssues.map(async(issue)=>{
-                const user = await finduserByid(issue.reporter_id);
+                const user = await finduserByid(issue.reporter_id as number);
 
                 return {
-                    id: issue.id,
+                    id: issue.id as number,
                     title: issue.title,
                     description: issue.description,
                     type: issue.type,
@@ -56,24 +62,8 @@ const getAllIssueFromDb = async (sort:string,type:string|undefined,status:string
                 }
             })
         )
-        if(type &&  (type==="bug" || type === "feature_request")){
-            allIssueWithuser = allIssueWithuser.filter((issue)=>{
-               return issue.type === type;
-            })
-        }
-        
 
-        if(status && (status === 'open' || status === 'in_progress' || status === 'resolved')){
-            allIssueWithuser = allIssueWithuser.filter((issue)=>{
-               return issue.status === status;
-            })
-        }
-      return allIssueWithuser;   
-
- 
-     } catch (error: unknown) {
-         throw error
-     }
+      return allIssueWithuser;
 }
 
  const finduserByid = async(id:number) =>{
@@ -156,4 +146,5 @@ export const issueService = {
     updateIssueByidIntoDb,
     finduserByid,
     deleteIssueFromDb,
+    allIssueWithuser,
 }
