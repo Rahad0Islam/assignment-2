@@ -40,7 +40,7 @@ const loginDB = async (payload: Pick<Iuser,"email"|'password'>) =>{
     if(!checkPassword){
         throw new Error ("Incorrect Password");
     }
-    delete user.password
+    delete user.password;
 
     const jwtPayload : Pick<Iuser,'id'|'name'|'role'>= {
         id : user.id,
