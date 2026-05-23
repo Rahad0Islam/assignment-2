@@ -24,7 +24,7 @@ const Authentication = (...roles : Troles[]) =>{
         const decode = jwt.verify(token as string, config.jwt_secret as string)as JwtPayload;
     
 
-        const userData = await pool.query(`
+        const userData= await pool.query(`
             SELECT * FROM users WHERE id = $1    
         `,[decode.id])
         
@@ -39,7 +39,14 @@ const Authentication = (...roles : Troles[]) =>{
         const user = userData.rows[0];
         // console.log(user);
 
-     
+        if(decode.name !== user.name  || decode.role !== user.name){
+            return apiResponse(res,{
+                statusCode:401,
+                success:false,
+                message:"unauthorized",
+                errors:"token is not valid"
+            })
+        }
         
         if(roles.length && !roles.includes(user.role)){
             return apiResponse(res,{
